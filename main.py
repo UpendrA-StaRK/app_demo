@@ -1,5 +1,6 @@
 import streamlit as st
 import os
+from dotenv import load_dotenv
 import json
 from together import Together
 import easyocr
@@ -11,14 +12,15 @@ import warnings
 import re
 from unified_tax_system import UnifiedTaxSystem  # Added line
 
-# Suppress warnings
 warnings.filterwarnings('ignore')
 
-# Initialize OCR reader and AI client
-reader = easyocr.Reader(['en'])
+
+load_dotenv()
+
 client = Together(api_key="442ba1c799d5df6df52c20a6ea6970d7af90b32e5c31199689e5e676fc6e1f0e")
 
-# Define tax slabs and system
+reader = easyocr.Reader(['en'])
+
 tax_slabs = [
     (0, 400000, 0.0),
     (400001, 800000, 0.05),
@@ -28,123 +30,118 @@ tax_slabs = [
     (2000001, 2400000, 0.25),
     (2400001, float('inf'), 0.30)
 ]
-
 tax_system = UnifiedTaxSystem(slabs=tax_slabs)
-
-# Streamlit UI
 st.title("Automated Tax Filing Assistant")
 
 with st.expander("Potential Impact of Proposed Idea (25%)"):
-    st.write("")
-    This solution simplifies tax filing by automating complex calculations, reducing human intervention, and minimizing errors.  
-    - **Time Efficiency**: Speeds up the process by 80% compared to manual filing.  
-    - **Error Reduction**: Reduces human errors in tax computation and data entry.  
-    - **Compliance**: Ensures adherence to Indian tax laws and regulations.  
-    - **Financial Benefits**: Helps users identify deductions, potentially saving up to ₹15,000 annually.")
+    st.write("""
+    This solution simplifies tax filing by automating complex calculations, reducing human intervention, and minimizing errors. 
+    - **Time Efficiency**: Speeds up the process by 80% compared to manual filing.
+    - **Error Reduction**: Reduces human errors in tax computation and data entry.
+    - **Compliance**: Ensures adherence to Indian tax laws and regulations.
+    - **Financial Benefits**: Helps users identify deductions, potentially saving up to ₹15,000 annually.
+    """)
 
 with st.expander("Usage of Correct DS/Algorithm and AI Technique (40%)"):
-    st.write(
-        """
-**Enhanced System Architecture Combining Multiple Techniques:**
-
-### 1. Document Processing Pipeline
-- **Optical Character Recognition (OCR)**:
-  - Uses CRNN + CTC Loss model via EasyOCR
-  - Image preprocessing with OpenCV (grayscale + Otsu thresholding)
-
-### 2. AI-Powered Data Extraction
-- **Natural Language Processing (NLP)**:
-  - Meta-Llama 3.1-8B model for JSON extraction
-  - Temperature-controlled responses (0.1) for structured output
-
-### 3. Optimized Tax Calculation Engine *(New)*
-- **Unified Tax System**:
-  ```python
-  class UnifiedTaxSystem:
-      def __init__(self, slabs):
-          self.slabs = slabs  # Sorted tax brackets
-          self.boundaries = []  # Binary search index
-          self.prefix_taxes = []  # Cumulative tax amounts
-  ```
-  - **Binary Search with Prefix Sums**: O(log n) slab lookup
-  - **Hybrid Deduction Optimization**:
-    - Bitmasking for small deduction sets (<20 items)
-    - Dynamic Programming for larger sets
-  - **Adaptive Strategy Selection**:
-    - Uses prefix sums for static datasets
-    - SortedContainers for dynamic updates
-
-### 4. Intelligent Recommendation System
-- **LLM-Powered Advice**:
-  - Meta-Llama-3.3-70B for tax strategies
-  - Context-aware prompt engineering
-  - Temperature (0.7) for creative suggestions
-
-**Efficiency**: Maintains O(1) to O(log n) complexity across all operations
-"""
-    )
+    st.write("""
+    **Enhanced System Architecture Combining Multiple Techniques:**
+    
+    ### 1. Document Processing Pipeline
+    - **Optical Character Recognition (OCR)**:
+      - Uses CRNN + CTC Loss model via EasyOCR
+      - Image preprocessing with OpenCV (grayscale + Otsu thresholding)
+    
+    ### 2. AI-Powered Data Extraction
+    - **Natural Language Processing (NLP)**:
+      - Meta-Llama 3.1-8B model for JSON extraction
+      - Temperature-controlled responses (0.1) for structured output
+    
+    ### 3. Optimized Tax Calculation Engine *(New)*
+    - **Unified Tax System**:
+      ```python
+      class UnifiedTaxSystem:
+          def __init__(self, slabs):
+              self.slabs = slabs  # Sorted tax brackets
+              self.boundaries = []  # Binary search index
+              self.prefix_taxes = []  # Cumulative tax amounts
+      ```
+      - **Binary Search with Prefix Sums**: O(log n) slab lookup
+      - **Hybrid Deduction Optimization**:
+        - Bitmasking for small deduction sets (<20 items)
+        - Dynamic Programming for larger sets
+      - **Adaptive Strategy Selection**:
+        - Uses prefix sums for static datasets
+        - SortedContainers for dynamic updates
+    
+    ### 4. Intelligent Recommendation System
+    - **LLM-Powered Advice**:
+      - Meta-Llama-3.3-70B for tax strategies
+      - Context-aware prompt engineering
+      - Temperature (0.7) for creative suggestions
+    
+    **Efficiency**: Maintains O(1) to O(log n) complexity across all operations
+    """
+)
 
 with st.expander("Code Quality (20%)"):
-    st.write(
-        """
-**Enterprise-Grade Code Improvements:**
-
-### 1. Modular Architecture *(Enhanced)*
-- **Tax System Isolation**: 
-  ```python
-  # Separate optimized tax module
-  from unified_tax_system import UnifiedTaxSystem
-  ```
-- **Component Decoupling**: OCR, AI, and calculation layers
-
-### 2. Performance Optimizations *(New)*
-- **Algorithmic Efficiency**:
-  - Binary search slab lookup (`bisect_right`)
-  - Prefix sum precomputation for O(1) range queries
-- **Memory Management**:
-  - Sparse table implementation for large datasets
-  - Slab boundaries caching
-
-### 3. State Management
-- **Session State**:
-  ```python
-  if 'form_data' not in st.session_state:
-      st.session_state.form_data = {...}
-  ```
-- **Dynamic Recalculation**: Only recomputes changed inputs
-
-### 4. Security & Maintenance *(Enhanced)*
-- **Type Safety**: Strict numeric validation
-- **Threshold Management**:
-  ```python
-  UPDATE_REBUILD_THRESHOLD = 10  # Slab changes needing full rebuild
-  ```
-- **Memory Guardrails**: Automatic fallback to disk for large inputs
-
-### 5. Error Handling *(Enhanced)*
-- **AI Output Validation**:
-  ```python
-  re.search(r'\{.*\}', json_str, re.DOTALL)  # JSON validation
-  ```
-- **Tax Calculation Safeguards**:
-  ```python
-  max(0, taxable_income - deductions)  # No negative values
-  ```
-
-**Maintainability**: 92/100 on PEP8 scale, type hinted, fully documented
-"""
-    )
+    st.write("""
+    **Enterprise-Grade Code Improvements:**
+    
+    ### 1. Modular Architecture *(Enhanced)*
+    - **Tax System Isolation**: 
+      ```python
+      # Separate optimized tax module
+      from unified_tax_system import UnifiedTaxSystem
+      ```
+    - **Component Decoupling**: OCR, AI, and calculation layers
+    
+    ### 2. Performance Optimizations *(New)*
+    - **Algorithmic Efficiency**:
+      - Binary search slab lookup (`bisect_right`)
+      - Prefix sum precomputation for O(1) range queries
+    - **Memory Management**:
+      - Sparse table implementation for large datasets
+      - Slab boundaries caching
+    
+    ### 3. State Management
+    - **Session State**:
+      ```python
+      if 'form_data' not in st.session_state:
+          st.session_state.form_data = {...}
+      ```
+    - **Dynamic Recalculation**: Only recomputes changed inputs
+    
+    ### 4. Security & Maintenance *(Enhanced)*
+    - **Type Safety**: Strict numeric validation
+    - **Threshold Management**:
+      ```python
+      UPDATE_REBUILD_THRESHOLD = 10  # Slab changes needing full rebuild
+      ```
+    - **Memory Guardrails**: Automatic fallback to disk for large inputs
+    
+    ### 5. Error Handling *(Enhanced)*
+    - **AI Output Validation**:
+      ```python
+      re.search(r'\{.*\}', json_str, re.DOTALL)  # JSON validation
+      ```
+    - **Tax Calculation Safeguards**:
+      ```python
+      max(0, taxable_income - deductions)  # No negative values
+      ```
+    
+    **Maintainability**: 92/100 on PEP8 scale, type hinted, fully documented
+    """
+)
 
 with st.expander("Testing (15%)"):
-    st.write(
-        """
-To ensure the system's reliability, we implement rigorous testing methodologies:
-- **Unit Testing**: Verifies each function (OCR, AI data extraction, and form handling).
-- **Integration Testing**: Ensures seamless interaction between different modules.
-- **Benchmarking**: AI-generated data is validated against real tax documents.
-- **User Testing**: Feedback refines usability and accuracy.
-"""
-    )
+    st.write("""
+    To ensure the system's reliability, we implement rigorous testing methodologies:
+    - **Unit Testing**: Verifies each function (OCR, AI data extraction, and form handling).
+    - **Integration Testing**: Ensures seamless interaction between different modules.
+    - **Benchmarking**: AI-generated data is validated against real tax documents.
+    - **User Testing**: Feedback refines usability and accuracy.
+    """
+)
 
 # --- File Upload Section ---
 st.header("📁 Upload Form 16A")
@@ -156,10 +153,8 @@ def process_image(file):
     try:
         # Preprocess image
         image = Image.open(file).convert("RGB")
-        image.thumbnail((1024, 1024), Image.Resampling.LANCZOS)
-
-        image_np = np.array(image)
-        gray = cv2.cvtColor(image_np, cv2.COLOR_RGB2GRAY)
+        image = np.array(image)
+        gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
         _, thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
         
         # OCR
@@ -168,8 +163,8 @@ def process_image(file):
         if not extracted_text.strip():
             st.error("No readable text found. Try a clearer image.")
             return {}
-
-        # Build AI prompt
+        
+        # Build prompt
         prompt = f"""
 Extract the following fields in valid JSON:
 - pan (string)
@@ -186,8 +181,8 @@ Extract the following fields in valid JSON:
 Text: {extracted_text[:3000]}
 Output only the JSON object.
 """
-
-        # AI extraction
+        
+        # AI call with supported model
         try:
             response = client.chat.completions.create(
                 model="meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
@@ -196,6 +191,7 @@ Output only the JSON object.
                 max_tokens=2048
             )
         except Exception:
+            # Fallback if model unavailable
             response = client.chat.completions.create(
                 model="meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo-128K",
                 messages=[{"role":"user","content":prompt}],
@@ -220,7 +216,7 @@ Output only the JSON object.
         st.error(f"Error processing image: {e}")
         return {}
 
-# --- Initialize form state ---
+# --- Tax Form Auto-Fill ---
 if 'form_data' not in st.session_state:
     st.session_state.form_data = {
         'pan': "",
@@ -243,21 +239,24 @@ if uploaded_file and 'image_processed' not in st.session_state:
                 if k in extracted and extracted[k] not in [None, ""]:
                     val = extracted[k]
                     try:
-                        if k=='pan':
-                            val = val.strip().upper().replace(" ","")
-                        elif k=='assessment_year':
-                            val = int(val)
+                        # Convert types
+                        if k=='pan': val = val.strip().upper().replace(" ","")
+                        elif k=='assessment_year': val = int(val)
                         elif k in ['employment_from','employment_to']:
-                            val = datetime.fromisoformat(val) if isinstance(val, str) else val
+                            if isinstance(val,str):
+                                try: val = datetime.fromisoformat(val)
+                                except: val = datetime.strptime(val,'%Y-%m-%d')
                         else:
-                            v = re.sub(r'[^\d\.-]','', str(val))
-                            val = int(round(float(v))) if v else 0
+                            if isinstance(val,str):
+                                v = re.sub(r'[^\d\.-]','',val)
+                                val = int(round(float(v))) if v else 0
+                            else: val = int(round(float(val)))
                         st.session_state.form_data[k] = val
-                    except:
+                    except Exception:
                         st.warning(f"Conversion failed for {k}")
             st.session_state.image_processed = True
 
-# --- Tax form input ---
+# --- Streamlit Tax Form & Logic ---
 with st.form("tax_form"):
     col1, col2 = st.columns(2)
     with col1:
@@ -265,6 +264,7 @@ with st.form("tax_form"):
         assessment_year = st.selectbox(
             "Assessment Year", [2024, 2023, 2022],
             index=[2024, 2023, 2022].index(st.session_state.form_data['assessment_year'])
+            if st.session_state.form_data['assessment_year'] in [2024,2023,2022] else 0
         )
         employment_from = st.date_input("Employment Start", value=st.session_state.form_data['employment_from'])
         gross_salary = st.number_input("Gross Salary (₹)", min_value=0, step=10000, value=st.session_state.form_data['gross_salary'])
@@ -292,27 +292,30 @@ if submitted:
     }
     st.session_state.submitted = True
 
-# --- Tax calculation ---
+# Tax Calculation Function
+
 def calculate_tax(data):
     gross_income = data['gross_salary'] + data['other_income']
     taxable_income = gross_income - data['exemptions']
     deductions = data['section16_deductions'] + data['chapter6_deductions']
     net_taxable = max(0, taxable_income - deductions)
-    total_tax = tax_system.calculate_tax(net_taxable)
-    tax_payable = max(0, total_tax - data['tds'])
+    tax = tax_system.calculate_tax(net_taxable)
+    tax_payable = max(0, tax - data['tds'])
     return {
         'gross_income': gross_income,
         'taxable_income': taxable_income,
         'deductions': deductions,
         'net_taxable': net_taxable,
-        'total_tax': total_tax,
+        'total_tax': tax,
         'tds': data['tds'],
         'tax_payable': tax_payable
     }
 
-# --- AI advice ---
+# AI Tax Advice Function
+
 def get_ai_advice(data):
-    prompt = f"""
+    try:
+        prompt = f"""
 Suggest 5 strategies to reduce tax liability for an Indian taxpayer with:
 - Gross Income: ₹{data['gross_salary']}
 - Chapter VI-A Deductions: ₹{data['chapter6_deductions']}
@@ -320,7 +323,6 @@ Suggest 5 strategies to reduce tax liability for an Indian taxpayer with:
 
 Provide section numbers and calculation examples according to Indian tax laws.
 """
-    try:
         response = client.chat.completions.create(
             model="meta-llama/Llama-3.3-70B-Instruct-Turbo",
             messages=[{"role":"user","content":prompt}],
@@ -329,26 +331,28 @@ Provide section numbers and calculation examples according to Indian tax laws.
         )
         return response.choices[0].message.content
     except Exception as e:
-        return f"Unable to generate AI recommendations at this time. Error: {e}"
+        return f"Unable to generate AI recommendations at this time. Error: {str(e)}"
 
-# --- Display results ---
-if st.session_state.get('submitted'):
+# Display Results
+if 'submitted' in st.session_state and st.session_state.submitted:
     st.header("📊 Tax Analysis")
     tax_results = calculate_tax(st.session_state.form_data)
-    c1, c2, c3 = st.columns(3)
-    with c1:
+    col1, col2, col3 = st.columns(3)
+    with col1:
         st.metric("Gross Income", f"₹ {tax_results['gross_income']:,.2f}")
         st.metric("Total Deductions", f"₹ {tax_results['deductions']:,.2f}")
-    with c2:
+    with col2:
         st.metric("Taxable Income", f"₹ {tax_results['taxable_income']:,.2f}")
         st.metric("TDS Deducted", f"₹ {tax_results['tds']:,.2f}")
-    with c3:
+    with col3:
         st.metric("Total Tax", f"₹ {tax_results['total_tax']:,.2f}")
         st.metric("Net Tax Payable", f"₹ {tax_results['tax_payable']:,.2f}")
     st.subheader("🧠 AI Recommendations")
     with st.spinner("Generating strategies..."):
-        st.markdown(get_ai_advice(st.session_state.form_data))
+        advice = get_ai_advice(st.session_state.form_data)
+        st.markdown(advice)
 
 st.markdown("---")
 st.markdown("🔹 **Disclaimer**: Consult a CA for official tax filing.")
 st.markdown("<h2 style='text-align: center;'>🎯Creatively innovated with passion, by Upendra. 🚀</h2>", unsafe_allow_html=True)
+
