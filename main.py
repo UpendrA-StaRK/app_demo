@@ -35,7 +35,7 @@ tax_system = UnifiedTaxSystem(slabs=tax_slabs)
 st.title("Automated Tax Filing Assistant")
 
 with st.expander("Potential Impact of Proposed Idea (25%)"):
-    st.write(")
+    st.write("")
     This solution simplifies tax filing by automating complex calculations, reducing human intervention, and minimizing errors.  
     - **Time Efficiency**: Speeds up the process by 80% compared to manual filing.  
     - **Error Reduction**: Reduces human errors in tax computation and data entry.  
